@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student enrollees — Student records</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'students/css/style.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="{% url 'students:roster' %}" class="brand">Student enrollees</a>
+            <a href="/admin/" class="admin-link">Admin</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Student records</h1>
+                <p class="page-subtitle">View student details and class information.</p>
+            </div>
+            <div class="school-year">School year {{ school_year }}</div>
+        </div>
+
+        <div class="master-detail">
+            <!-- Left Sidebar: Student List -->
+            <aside class="card sidebar-card">
+                <div class="sidebar-header">
+                    <span class="sidebar-title">Students</span>
+                    <span class="student-count">{{ students|length }} student{{ students|length|pluralize }}</span>
+                </div>
+
+                <form method="get" action="{% url 'students:roster' %}" class="search-form">
+                    <input
+                        type="text"
+                        name="q"
+                        id="studentSearch"
+                        value="{{ query }}"
+                        placeholder="Search students"
+                        class="search-input"
+                        autocomplete="off"
+                    >
+                </form>
+
+                <ul class="student-list" id="studentList">
+                    {% for student in students %}
+                        <li class="student-item {% if selected_student and student.student_id == selected_student.student_id %}active{% endif %}"
+                            data-search="{{ student.full_name|lower }} {{ student.student_id|lower }}">
+                            <a href="?student={{ student.student_id }}{% if query %}&q={{ query|urlencode }}{% endif %}" class="student-link">
+                                <div class="student-name">{{ student.full_name }}</div>
+                                <div class="student-id">{{ student.student_id }}</div>
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li class="empty-list">No student records found.</li>
+                    {% endfor %}
+                </ul>
+            </aside>
+
+            <!-- Right Detail Panel -->
+            <section class="card detail-card">
+                {% if selected_student %}
+                    <div class="detail-header">
+                        <div>
+                            <h2 class="detail-name">{{ selected_student.full_name }}</h2>
+                            <p class="detail-id">Student ID: {{ selected_student.student_id }}</p>
+                        </div>
+                        <span class="status-badge status-{{ selected_student.status|lower }}">
+                            {{ selected_student.status }}
+                        </span>
+                    </div>
+
+                    <hr class="divider">
+
+                    <div class="info-grid three-col">
+                        <div class="info-item">
+                            <span class="info-label">Grade level</span>
+                            <span class="info-value">{{ selected_student.grade_level }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Section</span>
+                            <span class="info-value">{{ selected_student.section }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">School year</span>
+                            <span class="info-value">{{ selected_student.school_year }}</span>
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+
+                    <h3 class="section-heading">Personal information</h3>
+
+                    <div class="info-grid two-col">
+                        <div class="info-item">
+                            <span class="info-label">Date of birth</span>
+                            <span class="info-value">{{ selected_student.date_of_birth|date:"F j, Y" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Gender</span>
+                            <span class="info-value">{{ selected_student.gender }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email address</span>
+                            <span class="info-value">{{ selected_student.email }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Contact number</span>
+                            <span class="info-value">{{ selected_student.contact_number }}</span>
+                        </div>
+                        <div class="info-item full-span">
+                            <span class="info-label">Home address</span>
+                            <span class="info-value">{{ selected_student.home_address }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="empty-detail">
+                        <p>Select a student from the list or run <code>python manage.py seed_students</code> to load records.</p>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Instant client-side filter alongside server-side GET search
+        const searchInput = document.getElementById('studentSearch');
+        const items = document.querySelectorAll('#studentList .student-item');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const term = this.value.toLowerCase().trim();
+                items.forEach(item => {
+                    const text = item.getAttribute('data-search') || '';
+                    item.style.display = text.includes(term) ? '' : 'none';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
