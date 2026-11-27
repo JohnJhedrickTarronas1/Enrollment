@@ -4,12 +4,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-change-this-key-in-production'
 
-DEBUG = True
+DEBUG = False
 
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = '/static/'
 
-ALLOWED_HOSTS = ['*']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+ALLOWED_HOSTS = ['jhedrick2.pythonanywhere.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
