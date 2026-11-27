@@ -6,6 +6,9 @@ SECRET_KEY = 'django-insecure-change-this-key-in-production'
 
 DEBUG = True
 
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
